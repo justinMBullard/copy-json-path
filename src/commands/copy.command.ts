@@ -28,11 +28,12 @@ export class Copy {
     if (this.canExecuteCommand()) {
       const editor = window.activeTextEditor;
       const text = editor?.document.getText();
+
       const offset = editor?.document.offsetAt(editor?.selection.start);
 
       if (offset && text) {
         const location = jsonc.getLocation(text, offset);
-        const path: string = location.path.reduce(
+        var path: string = location.path.reduce(
           (acc: string, val: any, index: number): string => {
             if (Number.isInteger(val)) {
               return index === 0 ? `[${val}]` : `${acc}[${val}]`;
@@ -42,6 +43,8 @@ export class Copy {
           },
           '',
         );
+        const baseFileName = editor?.document.fileName.match(/\/([^/]*)\.jsonc?/)?.[1] ?? "";
+        path =  baseFileName + "." + path;
         env.clipboard
           .writeText(path)
           .then(() => this.loggerService.log('Path copied'));
